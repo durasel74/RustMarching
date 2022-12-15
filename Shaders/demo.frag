@@ -1,3 +1,11 @@
+#version 330 core
+
+
+
+
+
+
+
 ////////////////////////////////////////////////////////////////
 //
 //                           HG_SDF
@@ -175,7 +183,7 @@
 
 #define PI 3.14159265
 #define TAU (2*PI)
-#define PHI (sqrt(5)*0.5 + 0.5)
+#define PHI (sqrt(5.0)*0.5 + 0.5)
 
 // Clamp to [0,1] - this operation is free under certain circumstances.
 // For further information see
@@ -348,14 +356,14 @@ float fDisc(vec3 p, float r) {
 // Hexagonal prism, circumcircle variant
 float fHexagonCircumcircle(vec3 p, vec2 h) {
 	vec3 q = abs(p);
-	return max(q.y - h.y, max(q.x*sqrt(3)*0.5 + q.z*0.5, q.z) - h.x);
+	return max(q.y - h.y, max(q.x*sqrt(3.0)*0.5 + q.z*0.5, q.z) - h.x);
 	//this is mathematically equivalent to this line, but less efficient:
 	//return max(q.y - h.y, max(dot(vec2(cos(PI/3), sin(PI/3)), q.zx), q.z) - h.x);
 }
 
 // Hexagonal prism, incircle variant
 float fHexagonIncircle(vec3 p, vec2 h) {
-	return fHexagonCircumcircle(p, vec2(h.x*sqrt(3)*0.5, h.y));
+	return fHexagonCircumcircle(p, vec2(h.x*sqrt(3.0)*0.5, h.y));
 }
 
 // Cone with correct distances to tip and base circle. Y is up, 0 is in the middle of the base.
@@ -729,10 +737,10 @@ float fOpDifferenceRound (float a, float b, float r) {
 float fOpUnionColumns(float a, float b, float r, float n) {
 	if ((a < r) && (b < r)) {
 		vec2 p = vec2(a, b);
-		float columnradius = r*sqrt(2)/((n-1)*2+sqrt(2));
+		float columnradius = r*sqrt(2.0)/((n-1)*2+sqrt(2.0));
 		pR45(p);
-		p.x -= sqrt(2)/2*r;
-		p.x += columnradius*sqrt(2);
+		p.x -= sqrt(2.0)/2*r;
+		p.x += columnradius*sqrt(2.0);
 		if (mod(n,2) == 1) {
 			p.y += columnradius;
 		}
@@ -755,13 +763,13 @@ float fOpDifferenceColumns(float a, float b, float r, float n) {
 	//avoid the expensive computation where not needed (produces discontinuity though)
 	if ((a < r) && (b < r)) {
 		vec2 p = vec2(a, b);
-		float columnradius = r*sqrt(2)/n/2.0;
-		columnradius = r*sqrt(2)/((n-1)*2+sqrt(2));
+		float columnradius = r*sqrt(2.0)/n/2.0;
+		columnradius = r*sqrt(2.0)/((n-1)*2+sqrt(2.0));
 
 		pR45(p);
 		p.y += columnradius;
-		p.x -= sqrt(2)/2*r;
-		p.x += -columnradius*sqrt(2)/2;
+		p.x -= sqrt(2.0)/2*r;
+		p.x += -columnradius*sqrt(2.0)/2;
 
 		if (mod(n,2) == 1) {
 			p.y += columnradius;
@@ -844,13 +852,14 @@ float fOpTongue(float a, float b, float ra, float rb) {
 
 
 
-#version 430 core
+
 
 layout (location = 0) out vec4 fragColor;
 
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 uniform float u_time;
+uniform float u_zoom;
 
 const float FOV = 1.0;
 const int MAX_STEPS = 256;
@@ -858,6 +867,10 @@ const float MAX_DIST = 500;
 const float EPSILON = 0.001;
 
 
+float fDisplace(vec3 p) {
+    pR(p.yz, sin(2.0 * u_time));
+    return (sin(p.x + 4.0 * u_time) * sin(p.y + sin(2.0 * u_time)) * sin(p.z + 6.0 * u_time));
+}
 
 vec2 fOpUnionID(vec2 res1, vec2 res2) {
     return (res1.x < res2.x) ? res1 : res2;
@@ -889,7 +902,7 @@ vec2 map(vec3 p) {
     vec2 plane = vec2(planeDist, planeID);
     // torus
     vec3 pt = p + 0.2;
-    pt.y -= 8;
+    pt.y -= 8.0;
     pR(pt.yx, 4.0 * u_time);
     pR(pt.yz, 0.3 * u_time);
     float torusDist = fTorus(pt, 0.7, 16.0);
@@ -897,7 +910,7 @@ vec2 map(vec3 p) {
     vec2 torus = vec2(torusDist, torusID);
     // sphere
     vec3 ps = p + 0.2;
-    ps.y -= 8;
+    ps.y -= 8.0;
     float sphereDist = fSphere(ps, 13.0 + fDisplace(p));
     float sphereID = 1.0;
     vec2 sphere = vec2(sphereDist, sphereID);
@@ -1007,7 +1020,7 @@ void mouseControl(inout vec3 ro) {
 }
 
 void render(inout vec3 col, in vec2 uv) {
-    vec3 ro = vec3(36.0, 19.0, -36.0);
+    vec3 ro = vec3(36.0 * u_zoom, 19.0 * u_zoom, -36.0 * u_zoom);
     mouseControl(ro);
 
     vec3 lookAt = vec3(0, 1, 0);
