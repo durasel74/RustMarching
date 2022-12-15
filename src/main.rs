@@ -65,11 +65,11 @@ fn main() {
     let mut view_port = ViewPort::new();
 
     let now = time::Instant::now();
-    let mut old_since_time = now.elapsed().as_secs_f32();
+    let mut old_since_time = now.elapsed().as_millis();
 
     let mut window_is_focused = true;
     let mut is_fullscreen = false;
-    let sensitivity = 7.0;
+    let sensitivity = 0.07;
 
     let mut yaw = 0.0f32;
     let mut pitch = 0.0f32;
@@ -265,65 +265,67 @@ fn main() {
             }
             event::Event::MainEventsCleared => {
                 // Дельта времени
-                let since_time = now.elapsed().as_secs_f32();
-                let delta_time = (since_time - old_since_time) * 10.0;
-                old_since_time = since_time;
-
+                let since_time = now.elapsed().as_millis();
+                let delta_time = (since_time - old_since_time) as f64;
                 
-                // if camera_up { delta_y = -camera_speed as f64; }
-                // if camera_down { delta_y = camera_speed as f64; }
-                // if camera_left { delta_x = -camera_speed as f64; }
-                // if camera_right { delta_x = camera_speed as f64; }
-                // if camera_father {
-                //     let c_speed = 0.2 * camera_speed * delta_time;
-                //     camera.set_ortho_factor(camera.ortho_factor() + c_speed); 
-                // }
-                // if camera_closer {
-                //     let c_speed = 0.2 * camera_speed * delta_time;
-                //     camera.set_ortho_factor(camera.ortho_factor() - c_speed); 
-                // }
+                if (delta_time > (1000.0 / 30.0)) {
+                    old_since_time = since_time;
+                    
+                    // if camera_up { delta_y = -camera_speed as f64; }
+                    // if camera_down { delta_y = camera_speed as f64; }
+                    // if camera_left { delta_x = -camera_speed as f64; }
+                    // if camera_right { delta_x = camera_speed as f64; }
+                    // if camera_father {
+                    //     let c_speed = 0.2 * camera_speed * delta_time;
+                    //     camera.set_ortho_factor(camera.ortho_factor() + c_speed); 
+                    // }
+                    // if camera_closer {
+                    //     let c_speed = 0.2 * camera_speed * delta_time;
+                    //     camera.set_ortho_factor(camera.ortho_factor() - c_speed); 
+                    // }
 
-                let offset_x = delta_x * sensitivity * delta_time as f64;
-                let offset_y = delta_y * sensitivity * delta_time as f64;
-                delta_x = 0.0;
-                delta_y = 0.0;
-                yaw += offset_x as f32;
-                pitch += -5.0 * offset_y as f32;
+                    let offset_x = delta_x * sensitivity * delta_time;
+                    let offset_y = delta_y * sensitivity * delta_time;
+                    delta_x = 0.0;
+                    delta_y = 0.0;
+                    yaw += offset_x as f32;
+                    pitch += -5.0 * offset_y as f32;
 
-                // let radians_yaw = yaw.to_radians();
-                // let radians_pitch = pitch.to_radians();
-                // let direct_x = radians_yaw.cos() * radians_pitch.cos();
-                // let direct_y = radians_pitch.sin();
-                // let direct_z = radians_yaw.sin() * radians_pitch.cos();
+                    // let radians_yaw = yaw.to_radians();
+                    // let radians_pitch = pitch.to_radians();
+                    // let direct_x = radians_yaw.cos() * radians_pitch.cos();
+                    // let direct_y = radians_pitch.sin();
+                    // let direct_z = radians_yaw.sin() * radians_pitch.cos();
 
-                // camera.set_is_look_at(is_look_at);
-                // if !camera.is_look_at() {
-                //     let direction = vec3(direct_x, direct_y, direct_z).normalize();
-                //     camera.set_direction(direction);
-                // }
-                // else {
-                //     let factor = camera.ortho_factor();
-                //     camera.set_position(vec3(
-                //         (direct_x * factor) + camera.target().x,
-                //         (direct_y * factor) + camera.target().y,
-                //         (direct_z * factor) + camera.target().z
-                //     ));
-                // }
+                    // camera.set_is_look_at(is_look_at);
+                    // if !camera.is_look_at() {
+                    //     let direction = vec3(direct_x, direct_y, direct_z).normalize();
+                    //     camera.set_direction(direction);
+                    // }
+                    // else {
+                    //     let factor = camera.ortho_factor();
+                    //     camera.set_position(vec3(
+                    //         (direct_x * factor) + camera.target().x,
+                    //         (direct_y * factor) + camera.target().y,
+                    //         (direct_z * factor) + camera.target().z
+                    //     ));
+                    // }
 
-                let view_port_size = vec2(
-                    view_port.size().0 as f32, 
-                    view_port.size().1 as f32
-                );
-                let mouse_position = vec2(yaw, pitch);
-                
-                shader_program.use_();
-                shader_program.set_uniform_vector2("u_resolution", &view_port_size);
-                shader_program.set_uniform_vector2("u_mouse", &mouse_position);
-                shader_program.set_uniform_float("u_time", old_since_time);
-                shader_program.set_uniform_float("u_zoom", zoom);
+                    let view_port_size = vec2(
+                        view_port.size().0 as f32, 
+                        view_port.size().1 as f32
+                    );
+                    let mouse_position = vec2(yaw, pitch);
+                    
+                    shader_program.use_();
+                    shader_program.set_uniform_vector2("u_resolution", &view_port_size);
+                    shader_program.set_uniform_vector2("u_mouse", &mouse_position);
+                    shader_program.set_uniform_float("u_time", old_since_time as f32 / 1000.0);
+                    shader_program.set_uniform_float("u_zoom", zoom);
 
-                view_port.draw();
-                windowed_context.swap_buffers().unwrap();
+                    view_port.draw();
+                    windowed_context.swap_buffers().unwrap();
+                }
             }
             _ => (),
         }

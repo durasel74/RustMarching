@@ -911,7 +911,7 @@ vec2 map(vec3 p) {
     // sphere
     vec3 ps = p + 0.2;
     ps.y -= 8.0;
-    float sphereDist = fSphere(ps, 13.0 + fDisplace(p));
+    float sphereDist = fSphere(ps, 13.0 + fDisplace(sin(p) * cos(u_time) * 2));
     float sphereID = 1.0;
     vec2 sphere = vec2(sphereDist, sphereID);
     // manipulation operators
