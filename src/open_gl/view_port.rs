@@ -1,5 +1,5 @@
 use gl;
-use cgmath::{ Vector3, vec3 };
+use cgmath::{ Vector2, vec2 };
 use super::{ ShaderProgram, RenderData };
 
 pub struct ViewPort {
@@ -35,11 +35,11 @@ impl ViewPort {
 
     // Создает область отрисовки OpenGL
     fn create_view_port_area() -> RenderData {
-        let vertices: Vec<Vector3<f32>> = vec![
-            vec3(-1.0, 1.0, 0.0),
-            vec3(1.0, 1.0, 0.0),
-            vec3(1.0, -1.0, 0.0),
-            vec3(-1.0, -1.0, 0.0)
+        let vertices: Vec<Vector2<f32>> = vec![
+            vec2(-1.0, 1.0),
+            vec2(1.0, 1.0),
+            vec2(1.0, -1.0),
+            vec2(-1.0, -1.0)
         ];
         let indices: Vec<u32> = vec![0, 3, 2,  0, 2, 1];
         RenderData::from_vertices(&vertices, &indices)

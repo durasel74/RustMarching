@@ -40,8 +40,8 @@ impl RenderData {
             gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
 
             gl::EnableVertexAttribArray(0);
-            gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE,
-                (3 * std::mem::size_of::<f32>()) as GLint,
+            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE,
+                (2 * std::mem::size_of::<f32>()) as GLint,
                 std::ptr::null()
             );
 
